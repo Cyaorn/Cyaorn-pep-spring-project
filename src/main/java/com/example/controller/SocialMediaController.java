@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.example.entity.Account;
@@ -65,12 +66,12 @@ public class SocialMediaController {
     }
 
     @PatchMapping("/messages")
-    public @ResponseBody Message updateMessage() {
+    public @ResponseBody Message updateMessage(@RequestParam String message_text) {
         return null;
     }
 
-    @GetMapping("/accounts/{account_id}")
-    public @ResponseBody List<Message> getAllMessagesByUser(@PathVariable int account_id) {
+    @GetMapping("/accounts/{account_id}/messages")
+    public @ResponseBody List<Message> getMessagesFromUser(@PathVariable int account_id) {
         return null;
     }
 }
