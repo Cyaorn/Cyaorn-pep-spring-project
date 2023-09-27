@@ -59,19 +59,18 @@ public class MessageService {
         return 0;
     }
 
-    public Message updateMessage(int id, String new_text) {
+    public int updateMessage(int id, String new_text) {
         Optional<Message> search = mr.findById(id);
         if (search.isPresent()) {
             Message msg = search.get();
             msg.setMessage_text(new_text);
             mr.save(msg);
+            return 1;
         }
         throw new MessageNotFoundException("Message not found in database");
     }
 
-    /*
     public List<Message> getAllFromUser(int account_id) {
         return mr.findByAccountId(account_id);
     }
-    */
 }

@@ -19,6 +19,7 @@ import com.example.entity.Message;
 import com.example.exception.AccountAlreadyExistsException;
 import com.example.exception.AccountNotFoundException;
 import com.example.exception.MessageAlreadyExistsException;
+import com.example.exception.MessageNotFoundException;
 import com.example.service.AccountService;
 import com.example.service.MessageService;
 
@@ -103,14 +104,25 @@ public class SocialMediaController {
         return ResponseEntity.status(200).body(messageService.deleteMessage(message_id));
     }
 
-    @PatchMapping("/messages")
-    public @ResponseBody ResponseEntity<Message> updateMessage(@RequestParam String message_text) {
-        return null;
+    @PatchMapping("/messages/{message_id}")
+    public @ResponseBody ResponseEntity<Integer> updateMessage(@RequestBody Message newMessage,
+                                                               @PathVariable int message_id) {
+        String message_text = newMessage.getMessage_text();
+        try {
+            if (message_text.length() > 0 && message_text.length() < 255) {
+                return ResponseEntity
+                    .status(200)
+                    .body(messageService.updateMessage(message_id, message_text));
+            }
+        } catch (MessageNotFoundException e) {
+
+        }
+        return ResponseEntity.status(400).body(0);
     }
 
     @GetMapping("/accounts/{account_id}/messages")
-    public @ResponseBody ResponseEntity<List<Message>> getMessagesFromUser(@PathVariable int account_id) {
-        return null;
+    public @ResponseBody ResponseEntity<List<Message>> getAllFromUser(@PathVariable int account_id) {
+        return ResponseEntity.status(200).body(messageService.getAllFromUser(account_id));
     }
 }
 
