@@ -61,49 +61,55 @@ public class SocialMediaController {
     }
 
     @PostMapping("/login")
-    public @ResponseBody Account loginUser() {
-        return null;
+    public @ResponseBody ResponseEntity<Account> loginUser(@RequestBody Account login) {
+        String username = login.getUsername();
+        String password = login.getPassword();
+        try {
+            return ResponseEntity.status(200).body(accountService.loginUser(username, password));
+        } catch (AccountNotFoundException e) {
+            return ResponseEntity.status(401).body(null);
+        }
     }
 
     @PostMapping("/messages")
-    public @ResponseBody ResponseEntity<Message> createMessage(@RequestParam String message_text,
-                                                               @RequestParam int posted_by,
-                                                               @RequestParam Long time_posted_epoch) {
-        try { // user does not exist
-            Account user = accountService.userExists(posted_by);
+    public @ResponseBody ResponseEntity<Message> createMessage(@RequestBody Message newMessage) {
+        int posted_by = newMessage.getPosted_by();
+        String message_text = newMessage.getMessage_text();
+        long time_posted_epoch = newMessage.getTime_posted_epoch();
+        try {
+            if (message_text.length() > 0 && message_text.length() < 255) {
+                return ResponseEntity
+                    .status(200)
+                    .body(messageService.createMessage(posted_by, message_text, time_posted_epoch));
+            }
         } catch (AccountNotFoundException e) {
             return ResponseEntity.status(400).body(null);
-        }
-        if (message_text.length() > 0 && message_text.length() < 255) {
-            return ResponseEntity
-                .status(200)
-                .body(messageService.createMessage(new Message(posted_by, message_text, time_posted_epoch)));
         }
         return ResponseEntity.status(400).body(null);
     }
 
     @GetMapping("/messages")
-    public @ResponseBody List<Message> getAllMessages() {
-        return null;
+    public @ResponseBody ResponseEntity<List<Message>> getAllMessages() {
+        return ResponseEntity.status(200).body(messageService.getAllMessages());
     }
 
     @GetMapping("/messages/{message_id}")
-    public @ResponseBody Message getMessageById(@PathVariable int message_id) {
-        return null;
+    public @ResponseBody ResponseEntity<Message> getMessageById(@PathVariable int message_id) {
+        return ResponseEntity.status(200).body(messageService.getMessageById(message_id));
     }
 
     @DeleteMapping("/messages/{message_id}")
-    public @ResponseBody Message deleteMessage(@PathVariable int message_id) {
-        return null;
+    public @ResponseBody ResponseEntity<Integer> deleteMessage(@PathVariable int message_id) {
+        return ResponseEntity.status(200).body(messageService.deleteMessage(message_id));
     }
 
     @PatchMapping("/messages")
-    public @ResponseBody Message updateMessage(@RequestParam String message_text) {
+    public @ResponseBody ResponseEntity<Message> updateMessage(@RequestParam String message_text) {
         return null;
     }
 
     @GetMapping("/accounts/{account_id}/messages")
-    public @ResponseBody List<Message> getMessagesFromUser(@PathVariable int account_id) {
+    public @ResponseBody ResponseEntity<List<Message>> getMessagesFromUser(@PathVariable int account_id) {
         return null;
     }
 }

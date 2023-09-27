@@ -6,49 +6,57 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.entity.Account;
 import com.example.entity.Message;
+import com.example.exception.AccountNotFoundException;
 import com.example.exception.MessageAlreadyExistsException;
 import com.example.exception.MessageNotFoundException;
+import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
 
 @Service
 public class MessageService {
 
+    private AccountRepository ar;
     private MessageRepository mr;
     // private List<Message> messageList;
 
     @Autowired
-    public MessageService (MessageRepository mr) {
+    public MessageService (AccountRepository ar, MessageRepository mr) {
+        this.ar = ar;
         this.mr = mr;
     }
 
-    public Message createMessage(Message newMessage) {
-        Optional<Message> search = mr.findById(newMessage.getMessage_id());
+    public Message createMessage(int posted_by, String message_text, long time_posted_epoch) {
+        Optional<Account> search = ar.findById(posted_by);
         if (search.isPresent()) {
-            throw new MessageAlreadyExistsException("Message ID already exists in database");
+            return mr.save(new Message(posted_by, message_text, time_posted_epoch));
         }
-        return mr.save(newMessage);
+        throw new AccountNotFoundException("Poster ID not found in database");
+        
     }
 
     public List<Message> getAllMessages() {
         return mr.findAll();
     }
 
-    public Message getMessageById(int id) throws MessageNotFoundException {
+    public Message getMessageById(int id) // throws MessageNotFoundException 
+    {
         Optional<Message> search = mr.findById(id);
         if (search.isPresent()) {
             return search.get();
         }
-        throw new MessageNotFoundException("Message not found in database");
+        return null;
+        // throw new MessageNotFoundException("Message not found in database");
     }
 
-    public boolean deleteMessage(int id) {
+    public int deleteMessage(int id) {
         Optional<Message> search = mr.findById(id);
         if (search.isPresent()) {
             mr.delete(search.get());
-            return true;
+            return 1;
         }
-        return false;
+        return 0;
     }
 
     public Message updateMessage(int id, String new_text) {
