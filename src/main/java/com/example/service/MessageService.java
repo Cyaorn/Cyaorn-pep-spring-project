@@ -1,66 +1,67 @@
 package com.example.service;
 
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.entity.Message;
+import com.example.exception.MessageAlreadyExistsException;
 import com.example.exception.MessageNotFoundException;
+import com.example.repository.MessageRepository;
 
 @Service
 public class MessageService {
 
-    private List<Message> messageList;
+    MessageRepository mr;
+    // private List<Message> messageList;
+
+    @Autowired
+    public MessageService (MessageRepository mr) {
+        this.mr = mr;
+    }
 
     public Message createMessage(Message newMessage) {
-        messageList.add(newMessage);
-        return newMessage;
+        Optional<Message> search = mr.findById(newMessage.getMessage_id());
+        if (search.isPresent()) {
+            throw new MessageAlreadyExistsException("Message ID already exists in database");
+        }
+        return mr.save(newMessage);
     }
 
     public List<Message> getAllMessages() {
-        return messageList;
+        return mr.findAll();
     }
 
     public Message getMessageById(int id) throws MessageNotFoundException {
-        for (Message msg : messageList) {
-            if (msg.getMessage_id() == id) {
-                return msg;
-            }
+        Optional<Message> search = mr.findById(id);
+        if (search.isPresent()) {
+            return search.get();
         }
         throw new MessageNotFoundException("Message not found in database");
     }
 
     public boolean deleteMessage(int id) {
-        Iterator<Message> iterator = messageList.iterator();
-        while (iterator.hasNext()) {
-            Message msg = iterator.next();
-            if (msg.getMessage_id() == id) {
-                iterator.remove(); // Iterator.remove() instead of List.remove()
-                return true;
-            }
+        Optional<Message> search = mr.findById(id);
+        if (search.isPresent()) {
+            mr.delete(search.get());
+            return true;
         }
         return false;
     }
 
     public Message updateMessage(int id, String new_text) {
-        for (Message msg : messageList) {
-            if (msg.getMessage_id() == id) {
-                msg.setMessage_text(new_text);
-                return msg;
-            }
+        Optional<Message> search = mr.findById(id);
+        if (search.isPresent()) {
+            Message msg = search.get();
+            msg.setMessage_text(new_text);
+            mr.save(msg);
         }
         throw new MessageNotFoundException("Message not found in database");
     }
 
-    public List<Message> getMessagesFromUser(int account_id) {
-        List<Message> out = new ArrayList<>();
-        for (Message msg : messageList) {
-            if (msg.getPosted_by() == account_id) {
-                out.add(msg);
-            }
-        }
-        return out;
+    public List<Message> getAllFromUser(int account_id) {
+        return mr.findByAccountId(account_id);
     }
 }
