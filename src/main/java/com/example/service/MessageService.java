@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import com.example.entity.Account;
 import com.example.entity.Message;
 import com.example.exception.AccountNotFoundException;
-import com.example.exception.MessageAlreadyExistsException;
 import com.example.exception.MessageNotFoundException;
 import com.example.repository.AccountRepository;
 import com.example.repository.MessageRepository;
@@ -19,7 +18,6 @@ public class MessageService {
 
     private AccountRepository ar;
     private MessageRepository mr;
-    // private List<Message> messageList;
 
     @Autowired
     public MessageService (AccountRepository ar, MessageRepository mr) {
@@ -40,14 +38,12 @@ public class MessageService {
         return mr.findAll();
     }
 
-    public Message getMessageById(int id) // throws MessageNotFoundException 
-    {
+    public Message getMessageById(int id) {
         Optional<Message> search = mr.findById(id);
         if (search.isPresent()) {
             return search.get();
         }
         return null;
-        // throw new MessageNotFoundException("Message not found in database");
     }
 
     public int deleteMessage(int id) {
