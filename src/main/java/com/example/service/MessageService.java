@@ -14,7 +14,7 @@ import com.example.repository.MessageRepository;
 @Service
 public class MessageService {
 
-    MessageRepository mr;
+    private MessageRepository mr;
     // private List<Message> messageList;
 
     @Autowired
@@ -61,7 +61,9 @@ public class MessageService {
         throw new MessageNotFoundException("Message not found in database");
     }
 
+    /*
     public List<Message> getAllFromUser(int account_id) {
         return mr.findByAccountId(account_id);
     }
+    */
 }

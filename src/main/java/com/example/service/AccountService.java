@@ -1,6 +1,5 @@
 package com.example.service;
 
-import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,20 +14,21 @@ import com.example.repository.AccountRepository;
 @Service
 public class AccountService {
 
-    AccountRepository ar;
+    // @Autowired
+    private AccountRepository ar;
     // private List<Account> accountList;
 
-    @Autowired
+    // @Autowired
     public AccountService (AccountRepository ar) {
         this.ar = ar;
     }
 
-    public Account registerUser(Account newUser) throws AccountAlreadyExistsException {
-        Optional<Account> search = ar.findById(newUser.getAccount_id());
-        if (search.isPresent()) {
+    public Account registerUser(String username, String password) throws AccountAlreadyExistsException {
+        Account search = ar.findByUsername(username);
+        if (search != null) {
             throw new AccountAlreadyExistsException("Account ID already exists in database");
         }
-        return ar.save(newUser);
+        return ar.save(new Account(username, password));
     }
 
     public Account userExists(int account_id) throws AccountNotFoundException {
